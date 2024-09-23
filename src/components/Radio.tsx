@@ -28,7 +28,7 @@ const Radio = <T extends FieldValues>({
                     name={option.label}
                     onChange={() => onChange(option.bool)}
                     type="radio"
-                    className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                    className="h-4 w-4 border-gray-300 text-primary-500 focus:ring-primary-500"
                   />
                   <label
                     htmlFor={option.label}

@@ -13,17 +13,20 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import * as yup from "yup";
+import client from "../clients/graphql";
 import ActivityIndicator from "../components/ActivityIndicator";
 import AudioPlayer from "../components/AudioPlayer";
 import Breadcrumb from "../components/Breadcrumb";
 import {
   Button,
   ButtonGroup,
+  GradientButton,
   OutlineButton,
   SubmitButton,
 } from "../components/Buttons";
+import ConfirmModal from "../components/dialogs/ConfirmModal";
 import DangerModal from "../components/dialogs/DangerModal";
-import GenerateSpeech from "../components/dialogs/GenerateSpeech";
+import VoiceModal from "../components/dialogs/VoiceModal";
 import Layout from "../components/Layout";
 import TextArea from "../components/TextArea";
 import usePlayer from "../hooks/usePlayer";
@@ -37,7 +40,10 @@ import {
   useRemoveProjectMutation,
   useUpdateProjectMutation,
 } from "../types/graphql";
-import { formatUnixDateTime } from "../utils/format-timestamp";
+import {
+  formatExpiryDate,
+  formatUnixDateTime,
+} from "../utils/format-timestamp";
 
 gql`
   fragment ProjectFields on Project {
@@ -113,9 +119,13 @@ const nameSchema = yup.object().shape({
 const scriptSchema = yup.object().shape({
   script: yup.string().trim().required("This field cannot be empty."),
 });
+const generateSchema = yup.object().shape({
+  voiceId: yup.string().trim().required("This field cannot be empty."),
+});
 
-type ScriptFormFields = yup.InferType<typeof scriptSchema>;
 type NameFormFields = yup.InferType<typeof nameSchema>;
+type ScriptFormFields = yup.InferType<typeof scriptSchema>;
+type GenerateFormFields = yup.InferType<typeof generateSchema>;
 
 export default function Project() {
   const { id } = useParams();
@@ -123,10 +133,11 @@ export default function Project() {
   const { playerRef, playerInfo, playerConfig } = usePlayer();
 
   const [editScript, setEditScript] = useState<boolean>(false);
+  const [voiceSelectOpen, setVoiceSelectOpen] = useState<boolean>(false);
   const [generateSpeechOpen, setGenerateSpeechOpen] = useState<boolean>(false);
   const [removeOpen, setRemoveOpen] = useState<boolean>(false);
 
-  const { data } = useGetProjectQuery({
+  const { data, error, loading } = useGetProjectQuery({
     variables: { projectId: id },
   });
 
@@ -143,20 +154,30 @@ export default function Project() {
     criteriaMode: "all",
     resolver: yupResolver(nameSchema),
   });
-
   const scriptForm = useForm<ScriptFormFields>({
     mode: "onChange",
     reValidateMode: "onChange",
     criteriaMode: "all",
     resolver: yupResolver(scriptSchema),
   });
+  const generateForm = useForm<GenerateFormFields>({
+    mode: "onChange",
+    reValidateMode: "onChange",
+    criteriaMode: "all",
+    resolver: yupResolver(generateSchema),
+  });
 
-  const resetForms = (project: GetProjectQuery["project"] | undefined) => {
-    if (project === undefined) return;
+  const resetForms = (data: GetProjectQuery | undefined) => {
+    if (data === undefined) return;
 
-    nameForm.reset({ name: project.name === null ? undefined : project.name });
+    nameForm.reset({
+      name: data.project.name === null ? undefined : data.project.name,
+    });
     scriptForm.reset({
-      script: project.script === null ? undefined : project.script,
+      script: data.project.script === null ? undefined : data.project.script,
+    });
+    generateForm.reset({
+      voiceId: data.voices[0].id,
     });
   };
 
@@ -182,6 +203,8 @@ export default function Project() {
         voiceId: params.voiceId,
       };
       await generate({ variables });
+
+      await client.refetchQueries({ include: ["GetLayoutInfo"] });
     } catch {}
   };
 
@@ -208,7 +231,27 @@ export default function Project() {
     { name: data?.project.name, href: `/projects/${data?.project.id}` },
   ];
 
-  useEffect(() => resetForms(data?.project), [data?.project]);
+  useEffect(() => resetForms(data), [data]);
+
+  const selectedVoice = data?.voices.find(
+    (item) => item.id === generateForm.getValues("voiceId"),
+  );
+
+  if (error) {
+    return (
+      <Layout>
+        <span>{error.message}</span>
+      </Layout>
+    );
+  }
+
+  if (loading) {
+    return (
+      <Layout>
+        <ActivityIndicator />
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -257,8 +300,8 @@ export default function Project() {
             </div>
           </div>
         </div>
-        <div className="flex-1 px-8 xl:grid xl:grid-cols-3">
-          <div className="flex flex-col py-8 space-y-8 xl:col-span-2 xl:pr-8">
+        <div className="flex-1 px-8 xl:grid xl:grid-cols-4">
+          <div className="flex flex-col py-8 space-y-8 xl:col-span-3 xl:pr-8">
             <div className="flex-1 flex flex-col gap-2 p-4 rounded-lg bg-white shadow">
               <div className="flex items-center justify-between">
                 <span className="block text-gray-700 text-lg font-medium">
@@ -309,16 +352,29 @@ export default function Project() {
                       <PencilSquareIcon />
                       Edit
                     </OutlineButton>
-                    <OutlineButton onPress={() => setGenerateSpeechOpen(true)}>
+                    <GradientButton onPress={() => setGenerateSpeechOpen(true)}>
                       <SparklesIcon />
                       Generate speech
-                    </OutlineButton>
+                    </GradientButton>
+                    <Button onPress={() => setVoiceSelectOpen(true)}>
+                      <span
+                        style={
+                          selectedVoice && {
+                            backgroundImage: selectedVoice.gradient ?? "none",
+                          }
+                        }
+                        className="rounded-full w-5 h-5"
+                      ></span>
+                      <p className="text-sm text-gray-800">
+                        {selectedVoice?.name}
+                      </p>
+                    </Button>
                   </ButtonGroup>
                 </>
               )}
             </div>
 
-            <div className="flex-1 min-h-72 relative flex flex-col p-4 rounded-lg bg-white shadow">
+            <div className="min-h-52 relative flex flex-col p-4 rounded-lg bg-white shadow">
               <span className="block text-gray-700 text-lg font-medium">
                 Speech
               </span>
@@ -339,13 +395,20 @@ export default function Project() {
                   </div>
                 </div>
               ) : (
-                <div className="flex-1 flex flex-col">
-                  <div className="pt-10"></div>
-
-                  <div className="flex justify-end">
-                    <div className="relative w-8 h-8 rounded-full bg-gray-100">
-                      <span className="absolute left-2/4 top-2/4 -translate-y-2/4 w-2/4 h-0.5 bg-gray-700"></span>
-                    </div>
+                <div className="flex-1 flex flex-col pt-4">
+                  <div className="flex-1 flex flex-col gap-2">
+                    <span className="text-gray-700">
+                      <span>Expires in</span>
+                      <span className="ml-2 font-semibold">
+                        {formatExpiryDate(data?.project.speech?.expires ?? 0)}
+                      </span>
+                    </span>
+                    <span className="text-gray-700">
+                      <span>Created</span>
+                      <span className="ml-2">
+                        {formatUnixDateTime(data?.project.speech?.created)}
+                      </span>
+                    </span>
                   </div>
 
                   <AudioPlayer
@@ -405,6 +468,14 @@ export default function Project() {
         </div>
       </div>
 
+      <VoiceModal
+        open={voiceSelectOpen}
+        onClose={() => setVoiceSelectOpen(false)}
+        voices={data?.voices}
+        name="voiceId"
+        form={generateForm}
+      />
+
       <DangerModal
         open={removeOpen}
         onClose={() => setRemoveOpen(false)}
@@ -415,11 +486,13 @@ export default function Project() {
         buttonTitle="Remove"
       />
 
-      <GenerateSpeech
-        voices={data?.voices ?? []}
-        onSubmit={handleGenerate}
+      <ConfirmModal
         open={generateSpeechOpen}
         onClose={() => setGenerateSpeechOpen(false)}
+        onSubmit={generateForm.handleSubmit(handleGenerate)}
+        title="Generate speech"
+        description="Are you sure you want to generate a speech?"
+        buttonTitle="Generate"
       />
     </Layout>
   );

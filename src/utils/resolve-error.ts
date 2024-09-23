@@ -5,10 +5,12 @@ type ErrorCode =
   | "SERVER_ERROR"
   | "BAD_REQUEST"
   | "INVALID_CREDENTIALS"
+  | "GUEST_ACCOUNT"
   | "FORBIDDEN"
   | "UNAUTHENTICATED"
   | "PRECONDITION_REQUIRED"
-  | "USER_COMPLETION_NOT_GUEST";
+  | "USER_COMPLETION_NOT_GUEST"
+  | "OUT_OF_TOKENS";
 
 export type ResolveErrorReturn = {
   message: string;

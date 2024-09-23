@@ -1,17 +1,20 @@
 import { ReactNode } from "react";
 
 type CircularProgressProps = {
+  size?: number;
   pathLength: number;
+  backgroundColor?: string;
+  strokeWidth?: number;
   children: ReactNode;
 };
 
 const CircularProgress: React.FC<CircularProgressProps> = ({
+  size = 40,
   pathLength,
+  backgroundColor = "transparent",
+  strokeWidth = 2,
   children,
 }) => {
-  const size = 40;
-  const strokeWidth = 2;
-
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - pathLength);
@@ -27,7 +30,7 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="transparent"
+          stroke={backgroundColor}
           strokeWidth={strokeWidth}
           fill="none"
         />
@@ -36,7 +39,7 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          className="stroke-violet-500"
+          className="stroke-primary-500"
           strokeWidth={strokeWidth}
           fill="none"
           strokeDasharray={circumference}

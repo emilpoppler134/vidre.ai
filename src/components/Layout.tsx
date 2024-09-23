@@ -18,7 +18,9 @@ import clsx from "clsx";
 import { ReactNode, useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useGetLayoutInfoQuery, UserType } from "../types/graphql";
+import { formatUnixDate } from "../utils/format-timestamp";
 import { clearAccessToken, hasAccessToken } from "../utils/token-storage";
+import CircularProgress from "./CircularProgress";
 import CompleteAccount from "./dialogs/CompleteAccount";
 import {
   Dropdown,
@@ -40,6 +42,7 @@ gql`
       type
       name
       username
+      tokens
     }
   }
 `;
@@ -208,7 +211,7 @@ const Layout: React.FC<LayoutProps> = ({ children, transparent = false }) => {
 
       {/* Static sidebar for desktop */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-        <div className="flex grow flex-col gap-y-5 overflow-y-auto px-6 bg-sidebar border-r border-violet-300/10">
+        <div className="flex grow flex-col gap-y-5 overflow-y-auto px-6 bg-sidebar border-r border-primary-300/10">
           <div className="flex h-8 w-8 items-center mt-4 select-none">
             <img src="/shadow-logo.png" alt="logo" />
           </div>
@@ -243,7 +246,62 @@ const Layout: React.FC<LayoutProps> = ({ children, transparent = false }) => {
                 </ul>
               </li>
 
-              <li className="-mx-6 mt-auto text-gray-200 hover:bg-white/5">
+              {data?.me.type !== UserType.Default ? null : (
+                <li className="-mx-2 mt-auto bg-white/5 rounded-lg flex flex-col p-3 text-gray-400 select-none">
+                  <h2 className="text-gray-200 font-bold pb-1 border-b border-gray-600">
+                    Voiceover Tokens
+                  </h2>
+                  <div className="flex mt-1">
+                    <div className="flex-1">
+                      <p className="flex justify-between text-sm">
+                        <span className="font-semibold text-gray-300">
+                          Total:{" "}
+                        </span>
+                        <span>1500</span>
+                      </p>
+                      <p className="flex justify-between text-sm">
+                        <span className="font-semibold text-gray-300">
+                          Remaining:{" "}
+                        </span>
+                        <span>{data.me.tokens}</span>
+                      </p>
+                      {true && (
+                        <p className="flex justify-between text-sm">
+                          <span className="font-semibold text-gray-300">
+                            Refreshes:{" "}
+                          </span>
+                          <span>{formatUnixDate(0)}</span>
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center pl-4 pr-2">
+                      <CircularProgress
+                        size={50}
+                        pathLength={
+                          Math.abs((data?.me.tokens ?? 0) / 1500) * -1
+                        }
+                        backgroundColor="#374151"
+                      >
+                        <div className="text-[.6rem] font-bold text-gray-200">
+                          {Math.round(
+                            Math.abs((data?.me.tokens ?? 0) / 1500) * 100,
+                          )}
+                          %
+                        </div>
+                      </CircularProgress>
+                    </div>
+                  </div>
+                </li>
+              )}
+
+              <li
+                style={
+                  data?.me.type !== UserType.Default
+                    ? { marginTop: "auto" }
+                    : { marginTop: 0 }
+                }
+                className="-mx-6 mt-auto text-gray-200 hover:bg-white/5"
+              >
                 <Dropdown>
                   <DropdownButton
                     as="button"
@@ -326,7 +384,7 @@ const Layout: React.FC<LayoutProps> = ({ children, transparent = false }) => {
         </button>
       </div>
 
-      <main className="relative flex-1 overflow-x-hidden overflow-y-auto lg:pl-72">
+      <main className="relative flex-1 overflow-x-hidden overflow-y-auto lg:pl-72 [&>div]:relative">
         {children}
       </main>
 

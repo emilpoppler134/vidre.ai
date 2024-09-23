@@ -19,7 +19,7 @@ const ExploreSection: React.FC<ExploreSectionProps> = ({ setOpen }) => {
         </p>
         <button
           onClick={setOpen}
-          className="sm:mx-auto rounded-md bg-primary-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
+          className="sm:mx-auto rounded-md bg-primary-400 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
         >
           Get started
         </button>

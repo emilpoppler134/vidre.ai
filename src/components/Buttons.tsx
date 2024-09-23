@@ -1,5 +1,12 @@
 import clsx from "clsx";
-import { forwardRef, ReactElement, ReactNode } from "react";
+import {
+  motion,
+  useAnimationFrame,
+  useMotionTemplate,
+  useMotionValue,
+  useTransform,
+} from "framer-motion";
+import { forwardRef, ReactElement, ReactNode, useRef } from "react";
 import { ButtonActivityIndicator } from "./ActivityIndicator";
 import Link from "./Link";
 
@@ -36,7 +43,7 @@ const styles = {
   base: [
     "relative inline-flex items-center justify-center",
     "w-full sm:w-auto px-3 py-2",
-    "rounded-md shadow-sm active:shadow-focus",
+    "rounded-md active:shadow-focus",
     "transition-colors",
     "text-sm",
   ],
@@ -51,18 +58,29 @@ const styles = {
       "bg-white hover:bg-gray-100",
       "ring-1 ring-inset ring-gray-300",
       "text-gray-700",
+      "shadow-sm",
     ],
-    submit: ["bg-primary-600 hover:bg-primary-500", "font-semibold text-white"],
-    danger: ["bg-red-600 hover:bg-red-500", "font-semibold text-white"],
+    submit: [
+      "bg-primary-500 hover:bg-primary-400",
+      "font-semibold text-white",
+      "shadow-sm",
+    ],
+    danger: [
+      "bg-red-600 hover:bg-red-500",
+      "font-semibold text-white",
+      "shadow-sm",
+    ],
     primary: [
-      "bg-primary-600 hover:bg-primary-500",
+      "bg-primary-500 hover:bg-primary-400",
       "font-semibold text-white",
       "sm:w-full",
+      "shadow-sm",
     ],
-    colorfull: [
+    gradient: [
       "bg-gradient-to-r backdrop-blur-md",
       "from-indigo-500 via-purple-500 to-fuchsia-500 hover:from-indigo-600 hover:via-purple-600 hover:to-fuchsia-600",
       "font-semibold text-white",
+      "shadow-sm",
     ],
   },
 };
@@ -120,7 +138,7 @@ export const OutlineButton = createButtonComponent("outline");
 export const SubmitButton = createButtonComponent("submit");
 export const PrimaryButton = createButtonComponent("primary");
 export const DangerButton = createButtonComponent("danger");
-export const Colorfull = createButtonComponent("colorfull");
+export const GradientButton = createButtonComponent("gradient");
 
 export const GoogleButton = () => (
   <a
@@ -148,3 +166,127 @@ export const GoogleButton = () => (
     <span className="text-sm font-semibold leading-6">Google</span>
   </a>
 );
+
+type BorderAnimationButtonProps = Partial<ButtonProps> & {
+  children: React.ReactNode;
+  borderWidth?: number;
+  lineSize?: number | string;
+};
+
+export const BorderAnimationButton: React.FC<BorderAnimationButtonProps> = ({
+  children,
+  onPress,
+  type = "button",
+  borderWidth = 3,
+  lineSize = 160,
+}) => {
+  const borderRadius = "1rem";
+  return (
+    <div className="relative">
+      <div
+        style={{
+          borderRadius: borderRadius,
+        }}
+        className="absolute -inset-0 bg-gradient-to-tl from-violet-600 via-violet-400 to-violet-200 opacity-50 blur"
+      ></div>
+
+      <button
+        style={{
+          borderRadius: borderRadius,
+          padding: `${borderWidth}px`,
+        }}
+        onClick={onPress}
+        type={type}
+        className={`relative bg-transparent h-fit w-fit overflow-hidden`}
+      >
+        <div
+          style={{ borderRadius: `calc(${borderRadius} * 0.96)` }}
+          className="absolute inset-0"
+        >
+          <BorderAnimation>
+            <div
+              style={{ width: lineSize, height: lineSize }}
+              className={`h-[${lineSize}] w-[${lineSize}] opacity-[0.8] bg-[radial-gradient(#c4b5fd_35%,transparent_65%)]`}
+            />
+          </BorderAnimation>
+        </div>
+        <div
+          className="relative bg-gradient-to-r from-violet-800 via-violet-500 to-violet-300 backdrop-blur-xl text-white font-bold font-figTree flex items-center w-full h-full px-4 py-2.5 antialiased"
+          style={{
+            borderRadius: `calc(${borderRadius} * 0.96)`,
+          }}
+        >
+          {children}
+        </div>
+      </button>
+    </div>
+  );
+};
+
+type BorderAnimationProps = {
+  children: React.ReactNode;
+  duration?: number;
+  rx?: string;
+  ry?: string;
+};
+
+const BorderAnimation: React.FC<BorderAnimationProps> = ({
+  children,
+  duration = 4000,
+  rx,
+  ry,
+}) => {
+  const pathRef = useRef<any>();
+  const progress = useMotionValue<number>(0);
+
+  useAnimationFrame((time) => {
+    const length = pathRef.current?.getTotalLength();
+    if (length) {
+      const pxPerMillisecond = length / duration;
+      progress.set((time * pxPerMillisecond) % length);
+    }
+  });
+
+  const x = useTransform(
+    progress,
+    (val) => pathRef.current?.getPointAtLength(val).x,
+  );
+  const y = useTransform(
+    progress,
+    (val) => pathRef.current?.getPointAtLength(val).y,
+  );
+
+  const transform = useMotionTemplate`translateX(${x}px) translateY(${y}px) translateX(-50%) translateY(-50%)`;
+
+  return (
+    <>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        preserveAspectRatio="none"
+        className="absolute h-full w-full"
+        width="100%"
+        height="100%"
+      >
+        <rect
+          fill="none"
+          width="100%"
+          height="100%"
+          rx={rx}
+          ry={ry}
+          ref={pathRef}
+        />
+      </svg>
+      <motion.div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          display: "inline-block",
+          transform,
+        }}
+      >
+        {children}
+      </motion.div>
+    </>
+  );
+};

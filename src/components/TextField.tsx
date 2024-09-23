@@ -4,23 +4,31 @@ import { useState } from "react";
 import { Controller, FieldValues, Path, UseFormReturn } from "react-hook-form";
 
 type TextFieldProps<TFieldValues extends FieldValues> = {
-  name: Path<TFieldValues>;
-  title: string;
-  type?: "text" | "password";
-  form: UseFormReturn<TFieldValues>;
-  onChange?: () => void;
-  defaultValue?: true;
   autoComplete?: string;
+  autofocus?: true;
+  className?: string;
+  defaultValue?: true;
+  form: UseFormReturn<TFieldValues>;
+  name: Path<TFieldValues>;
+  onChange?: () => void;
+  onKeyPress?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+  title?: string;
+  type?: "text" | "password";
 };
 
 const TextField = <T extends FieldValues>({
+  autoComplete = "off",
+  autofocus,
+  className,
+  defaultValue,
+  form,
   name,
+  onChange,
+  onKeyPress,
+  placeholder = "",
   title,
   type = "text",
-  form,
-  onChange,
-  defaultValue,
-  autoComplete = "off",
 }: TextFieldProps<T>): JSX.Element => {
   const [inputFocus, setInputFocus] = useState(false);
 
@@ -35,6 +43,7 @@ const TextField = <T extends FieldValues>({
         <div>
           <div
             className={clsx(
+              className,
               {
                 "shadow-text-field [&:has(input:focus-within)]:shadow-focus":
                   !error,
@@ -44,26 +53,28 @@ const TextField = <T extends FieldValues>({
             )}
           >
             <div className="group w-full h-full">
-              <span
-                className={clsx(
-                  {
-                    "top-0 scale-75 origin-top-left":
-                      inputFocus ||
-                      value !== "" ||
-                      (form.getValues(name) === undefined && defaultValue),
-                    "top-2/4 scale-1 origin-center":
-                      !inputFocus &&
-                      value === "" &&
-                      (form.getValues(name) !== undefined || !defaultValue),
-                    "text-gray-500 group-has-[:focus-within]:text-field-focus":
-                      !error,
-                    "text-field-invalid": !!error,
-                  },
-                  "pointer-events-none absolute left-3 -translate-y-2/4 px-1 text-base bg-white transition-[transform,top] duration-200 ease-in-out",
-                )}
-              >
-                <span>{title}</span>
-              </span>
+              {title === undefined ? null : (
+                <span
+                  className={clsx(
+                    {
+                      "top-0 scale-75 origin-top-left":
+                        inputFocus ||
+                        value !== "" ||
+                        (form.getValues(name) === undefined && defaultValue),
+                      "top-2/4 scale-1 origin-center":
+                        !inputFocus &&
+                        value === "" &&
+                        (form.getValues(name) !== undefined || !defaultValue),
+                      "text-gray-500 group-has-[:focus-within]:text-field-focus":
+                        !error,
+                      "text-field-invalid": !!error,
+                    },
+                    "pointer-events-none absolute left-3 -translate-y-2/4 px-1 text-base bg-white transition-[transform,top] duration-200 ease-in-out",
+                  )}
+                >
+                  <span>{title}</span>
+                </span>
+              )}
 
               <input
                 type={type}
@@ -71,7 +82,7 @@ const TextField = <T extends FieldValues>({
                 id={name}
                 ref={ref}
                 value={value}
-                placeholder=""
+                placeholder={placeholder}
                 onChange={(e) => {
                   onControllerChange(e.target.value);
                   onChange?.();
@@ -81,10 +92,15 @@ const TextField = <T extends FieldValues>({
                   onBlur();
                   setInputFocus(false);
                 }}
+                onKeyUp={(e) => {
+                  if (!inputFocus) return;
+                  onKeyPress?.(e);
+                }}
                 autoCapitalize="off"
                 autoComplete={autoComplete}
-                spellCheck="false"
                 autoCorrect="false"
+                autoFocus={autofocus ?? false}
+                spellCheck="false"
                 className="w-full h-full py-2 px-3 appearance-none outline-none !border-none !ring-0 rounded-md text-base"
               />
             </div>

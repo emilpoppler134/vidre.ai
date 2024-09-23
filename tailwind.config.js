@@ -6,28 +6,28 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          50: "#eff6ff",
-          100: "#dbeafe",
-          200: "#bfdbfe",
-          300: "#93c5fd",
-          400: "#60a5fa",
-          500: "#3b82f6",
-          600: "#2563eb",
-          700: "#1d4ed8",
-          800: "#1e40af",
-          900: "#1e3a8a",
-          950: "#172554",
+          50: "#eeefff",
+          100: "#e0e2ff",
+          200: "#c7c9fe",
+          300: "#a5a5fc",
+          400: "#8a81f8",
+          500: "#7863f1",
+          600: "#6a46e5",
+          700: "#5c38ca",
+          800: "#4a30a3",
+          900: "#3f2e81",
+          950: "#261b4b",
         },
         sidebar: "rgb(24 26 51)",
         drowdown: "rgb(42 44 67)",
         "field-invalid": "rgb(232 156 156)",
-        "field-focus": "rgb(156, 201, 232)",
+        "field-focus": "rgb(151 153 234)",
       },
       boxShadow: {
         "text-field":
           "0 0 0 1px #e0e0e0, 0 2px 4px 0 rgb(0 0 0 / 7%), 0 1px 1.5px 0 rgb(0 0 0 / 5%)",
         focus:
-          "0 0 0 1px rgb(50 151 211 / 30%), 0 1px 1px 0 rgb(0 0 0 / 7%), 0 0 0 4px rgb(50 151 211 / 30%)",
+          "0 0 0 1px rgb(50 59 211 / 30%), 0 1px 1px 0 rgb(0 0 0 / 7%), 0 0 0 4px rgb(50 53 211 / 30%)",
         invalid:
           "0 0 0 1px rgb(211 50 50 / 30%), 0 1px 1px 0 rgb(0 0 0 / 7%), 0 0 0 4px rgb(211 50 50 / 30%)",
       },

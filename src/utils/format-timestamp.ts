@@ -70,3 +70,13 @@ export const formatToMinutesAndSeconds = (totalSeconds: number): string => {
     restSeconds >= 10 ? restSeconds.toString() : "0" + restSeconds.toString();
   return `${minutes}:${seconds}`;
 };
+
+export const formatExpiryDate = (timestamp: number) => {
+  const now = new Date();
+  const expiryDate = new Date(timestamp * 1000);
+  const hours = Math.round(
+    (expiryDate.getTime() - now.getTime()) / 1000 / 60 / 60,
+  );
+
+  return hours < 0 ? 0 : hours.toString() + "h";
+};

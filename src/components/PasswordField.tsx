@@ -6,6 +6,7 @@ type PasswordFieldProps<TFieldValues extends FieldValues> = {
   title: string;
   form: UseFormReturn<TFieldValues>;
   autoComplete?: string;
+  className?: string;
 };
 
 const PasswordField = <T extends FieldValues>({
@@ -13,6 +14,7 @@ const PasswordField = <T extends FieldValues>({
   title,
   form,
   autoComplete = "new-password",
+  className,
 }: PasswordFieldProps<T>): JSX.Element => {
   return (
     <TextField
@@ -21,6 +23,7 @@ const PasswordField = <T extends FieldValues>({
       type="password"
       form={form}
       autoComplete={autoComplete}
+      className={className}
     />
   );
 };

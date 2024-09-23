@@ -2,12 +2,16 @@ import { gql } from "@apollo/client";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
+import unwrap from "ts-unwrap";
 import * as yup from "yup";
+import client from "../../clients/graphql";
 import {
   CompleteMutationVariables,
   useCompleteMutation,
+  useRefreshTokenMutation,
 } from "../../types/graphql";
 import { passwordRegex } from "../../utils/constants";
+import { setAccessToken } from "../../utils/token-storage";
 import { ButtonGroup, OutlineButton, SubmitButton } from "../Buttons";
 import PasswordField from "../PasswordField";
 import Radio from "../Radio";
@@ -22,6 +26,12 @@ type CompleteAccountProps = {
 gql`
   mutation Complete($params: CompleteParams!) {
     complete(params: $params)
+  }
+
+  mutation RefreshToken {
+    refreshAccessToken {
+      token
+    }
   }
 `;
 
@@ -77,6 +87,7 @@ type FormFields = yup.InferType<typeof schema>;
 
 const CompleteAccount: React.FC<CompleteAccountProps> = ({ open, onClose }) => {
   const [complete, { loading }] = useCompleteMutation();
+  const [refreshToken] = useRefreshTokenMutation();
 
   const form = useForm<FormFields>({
     mode: "onChange",
@@ -85,9 +96,19 @@ const CompleteAccount: React.FC<CompleteAccountProps> = ({ open, onClose }) => {
     resolver: yupResolver(schema),
   });
 
-  const handleComplete = ({ rePassword, ...params }: FormFields) => {
+  const handleComplete = async ({ rePassword, ...params }: FormFields) => {
     const variables: CompleteMutationVariables = { params };
-    complete({ variables });
+
+    try {
+      await complete({ variables });
+
+      const { data } = await refreshToken();
+      const token = unwrap(data?.refreshAccessToken?.token);
+      setAccessToken(token);
+
+      client.refetchQueries({ include: ["GetLayoutInfo"] });
+      onClose();
+    } catch {}
   };
 
   const handleClose = () => {
@@ -241,7 +262,10 @@ const CompleteAccount: React.FC<CompleteAccountProps> = ({ open, onClose }) => {
             </div>
             <div className="px-4 py-5 sm:p-6 border-t border-gray-200">
               <ButtonGroup className="mt-5">
-                <SubmitButton onPress={form.handleSubmit(handleComplete)}>
+                <SubmitButton
+                  onPress={form.handleSubmit(handleComplete)}
+                  loading={loading}
+                >
                   Submit
                 </SubmitButton>
                 <OutlineButton onPress={handleClose}>Cancel</OutlineButton>

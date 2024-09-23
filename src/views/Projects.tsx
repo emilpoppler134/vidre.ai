@@ -4,14 +4,24 @@ import {
   ChevronDownIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/20/solid";
+import client from "../clients/graphql";
 import ActivityIndicator from "../components/ActivityIndicator";
 import Breadcrumb from "../components/Breadcrumb";
 import Layout from "../components/Layout";
 import ProjectList from "../components/ProjectList";
-import { useListProjectsQuery } from "../types/graphql";
+import {
+  useListProjectsQuery,
+  useRemoveProjectMutation,
+  UserType,
+} from "../types/graphql";
 
 gql`
   query ListProjects {
+    me {
+      id
+      type
+    }
+
     projects {
       id
       name
@@ -19,10 +29,22 @@ gql`
       timestamp
     }
   }
+
+  mutation RemoveProject($projectId: String) {
+    removeProject(id: $projectId)
+  }
 `;
 
 export default function Projects() {
   const { data, loading } = useListProjectsQuery();
+  const [remove] = useRemoveProjectMutation();
+
+  const handleRemove = async (id: string) => {
+    try {
+      await remove({ variables: { projectId: id } });
+      client.refetchQueries({ include: ["ListProjects"] });
+    } catch {}
+  };
 
   const breadcrumb = [{ name: "Projects", href: "/projects" }];
 
@@ -54,14 +76,14 @@ export default function Projects() {
                   name="mobile-search-project"
                   type="text"
                   placeholder="Search"
-                  className="block w-full rounded-none rounded-l-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:hidden"
+                  className="block w-full rounded-none rounded-l-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-500 sm:hidden"
                 />
                 <input
                   id="desktop-search-project"
                   name="desktop-search-project"
                   type="text"
                   placeholder="Search projects"
-                  className="hidden w-full rounded-none rounded-l-md border-0 py-1.5 pl-10 text-sm leading-6 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:block"
+                  className="hidden w-full rounded-none rounded-l-md border-0 py-1.5 pl-10 text-sm leading-6 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-500 sm:block"
                 />
               </div>
               <button
@@ -86,7 +108,11 @@ export default function Projects() {
       {loading ? (
         <ActivityIndicator />
       ) : (
-        <ProjectList projects={data?.projects ?? []} />
+        <ProjectList
+          projects={data?.projects ?? []}
+          disabled={data?.me.type === UserType.Guest}
+          onRemove={handleRemove}
+        />
       )}
     </Layout>
   );

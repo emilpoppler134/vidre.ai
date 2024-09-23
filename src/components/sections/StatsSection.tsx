@@ -59,7 +59,7 @@ const StatsSection: React.FC = () => {
         {stats.map((stat) => (
           <motion.div
             key={stat.id}
-            className="flex flex-col gap-y-3 border-l border-violet-400/70 pl-6"
+            className="flex flex-col gap-y-3 border-l border-primary-400/70 pl-6"
             variants={parentVariants}
           >
             <dt className="text-sm leading-6">{stat.text}</dt>

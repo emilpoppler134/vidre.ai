@@ -43,7 +43,7 @@ export default function LandingPage() {
             </button>
             <button
               onClick={() => setOpen(true)}
-              className="group px-2.5 py-1.5 rounded-lg text-base text-white bg-primary-500 hover:bg-primary-600 transition-colors"
+              className="group px-2.5 py-1.5 rounded-lg text-base text-white bg-primary-400 hover:bg-primary-500 transition-colors"
             >
               <div className="flex items-center gap-1">
                 <span className="font-semibold">Get started</span>

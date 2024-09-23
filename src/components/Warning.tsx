@@ -1,10 +1,14 @@
 import { XCircleIcon } from "@heroicons/react/20/solid";
 
-type WarningProps = {};
+type WarningProps = {
+  errors: Array<string>;
+};
 
-const Warning: React.FC<WarningProps> = () => {
+const Warning: React.FC<WarningProps> = ({ errors }) => {
+  if (errors.length === 0) return null;
+
   return (
-    <div className="fixed top-6 left-2/4 -translate-x-2/4">
+    <div className="fixed top-6 left-2/4 pl-72 -translate-x-2/4 w-full max-w-4xl">
       <div className="rounded-md shadow-lg bg-red-50 p-4">
         <div className="flex">
           <div className="flex-shrink-0">
@@ -12,15 +16,13 @@ const Warning: React.FC<WarningProps> = () => {
           </div>
           <div className="ml-3">
             <h3 className="text-sm font-medium text-red-800">
-              There were 2 errors with your submission
+              There were {errors.length} error{errors.length > 1 && "s"}
             </h3>
             <div className="mt-2 text-sm text-red-700">
               <ul role="list" className="list-disc space-y-1 pl-5">
-                <li>Your password must be at least 8 characters</li>
-                <li>
-                  Your password must include at least one pro wrestling
-                  finishing move
-                </li>
+                {errors.map((message, index) => (
+                  <li key={index}>{message}</li>
+                ))}
               </ul>
             </div>
           </div>

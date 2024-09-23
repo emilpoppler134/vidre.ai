@@ -98,7 +98,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ setOpen }) => {
                 variants={buttonVariants}
                 initial="start"
                 animate="end"
-                className="rounded-md bg-primary-500 text-base font-semibold text-white shadow-sm hover:bg-primary-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                className="rounded-md bg-primary-400 text-base font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
                 <button onClick={setOpen} className="block px-5 py-3">
                   Get started

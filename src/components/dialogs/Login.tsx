@@ -1,6 +1,7 @@
 import { gql } from "@apollo/client";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { yupResolver } from "@hookform/resolvers/yup";
+import clsx from "clsx";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -45,15 +46,19 @@ const Login: React.FC<LoginProps> = ({ open, onClose }) => {
     resolver: yupResolver(schema),
   });
 
-  const handleLogin = async (variables: LoginMutationVariables) => {
+  const handleLogin = async (params: LoginMutationVariables) => {
+    const variables = {
+      username: params.username,
+      password: showPasswordField ? params.password : undefined,
+    };
+
     try {
       clearAccessToken();
-
       const { data } = await login({ variables });
       const token = unwrap(data?.login?.token);
       setAccessToken(token);
 
-      navigate("/projects");
+      window.location.href = "/projects";
     } catch (err) {
       const error = resolveError(err);
 
@@ -109,31 +114,35 @@ const Login: React.FC<LoginProps> = ({ open, onClose }) => {
               <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-[480px]">
                 <div className="bg-white px-0 py-6 sm:px-12">
                   <form onSubmit={form.handleSubmit(handleLogin)}>
-                    <div className="space-y-6">
+                    <div className="flex flex-col">
                       <TextField
                         form={form}
                         name="username"
                         key="username"
                         title="Email"
-                        onChange={() => {
+                        onKeyPress={(e) => {
                           form.resetField("password");
                           setShowPasswordField(false);
                         }}
                       />
 
-                      {showPasswordField ? (
-                        <PasswordField
-                          form={form}
-                          name="password"
-                          key="password"
-                          title="Password"
-                          autoComplete="password"
-                        />
-                      ) : (
-                        <input type="password" className="hidden" />
-                      )}
+                      <PasswordField
+                        form={form}
+                        name="password"
+                        key="password"
+                        title="Password"
+                        autoComplete="password"
+                        className={clsx(
+                          { "mt-6": showPasswordField },
+                          { hidden: !showPasswordField },
+                        )}
+                      />
 
-                      <PrimaryButton type="submit" loading={loading}>
+                      <PrimaryButton
+                        type="submit"
+                        loading={loading}
+                        className="mt-6"
+                      >
                         {showPasswordField ? "Login" : "Continue"}
                       </PrimaryButton>
                     </div>
