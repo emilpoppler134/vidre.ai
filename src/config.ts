@@ -1,2 +1,2 @@
-export const GRAPHQL_API_ENDPOINT = "http://localhost:4000/graphql";
-export const MEDIA_API_ENDPOINT = "http://localhost:4000/media";
+export const GRAPHQL_API_ENDPOINT = "https://api.vidre.ai/graphql";
+export const MEDIA_API_ENDPOINT = "https://api.vidre.ai/media";

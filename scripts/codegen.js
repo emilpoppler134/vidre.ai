@@ -2,7 +2,7 @@
 import { generate } from "@graphql-codegen/cli";
 
 export default function codegen() {
-  const endpoint = "http://localhost:4000/graphql";
+  const endpoint = "https://api.vidre.ai/graphql";
 
   generate(
     {
