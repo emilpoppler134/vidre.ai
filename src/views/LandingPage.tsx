@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Login from "../components/dialogs/Login";
+import Explanation from "../components/sections/ExplanationSection";
 import Explore from "../components/sections/ExploreSection";
 import Hero from "../components/sections/HeroSection";
 import Launch from "../components/sections/LaunchSection";
@@ -72,6 +73,7 @@ export default function LandingPage() {
         <Hero setOpen={() => setOpen(true)} />
         <Explore setOpen={() => setOpen(true)} />
         <Stats />
+        <Explanation />
         <Launch />
         <Notify />
       </main>
