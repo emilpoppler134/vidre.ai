@@ -13,15 +13,10 @@ import Link from "./Link";
 
 type ProjectItemProps = {
   project: Project;
-  disabled?: boolean;
   onRemove: (id: string) => void;
 };
 
-const ProjectItem: React.FC<ProjectItemProps> = ({
-  project,
-  disabled = false,
-  onRemove,
-}) => {
+const ProjectItem: React.FC<ProjectItemProps> = ({ project, onRemove }) => {
   const navigate = useNavigate();
 
   const handleCopy = async () => {
@@ -34,10 +29,7 @@ const ProjectItem: React.FC<ProjectItemProps> = ({
     <div className="relative group rounded-lg hover:bg-gray-50">
       <Link
         href={`/projects/${project.id}`}
-        className={clsx(
-          { "pointer-events-none": disabled },
-          "flex flex-col cursor-pointer group",
-        )}
+        className="flex flex-col cursor-pointer group"
       >
         <div className="px-2 pt-2">
           <div className="bg-gray-100 border aspect-video w-full overflow-hidden rounded-lg py-4 flex justify-center">
@@ -53,12 +45,7 @@ const ProjectItem: React.FC<ProjectItemProps> = ({
         </div>
 
         <div className="p-2">
-          <p
-            className={clsx(
-              { "group-hover:underline": !disabled },
-              "pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900",
-            )}
-          >
+          <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900 group-hover:underline">
             {project.name}
           </p>
           <p className="pointer-events-none block text-sm font-medium text-gray-500">
@@ -85,35 +72,31 @@ const ProjectItem: React.FC<ProjectItemProps> = ({
               anchor="bottom end"
               className="w-52 origin-top-right rounded-xl border border-white/5 bg-drowdown p-1 text-sm/6 text-white transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0"
             >
-              {disabled ? null : (
-                <>
-                  <MenuItem>
-                    <button
-                      onClick={() => navigate(`/projects/${project.id}`)}
-                      className="group flex w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:bg-white/10 cursor-default select-none"
-                    >
-                      <PencilIcon className="size-4 fill-white/75" />
-                      Edit
-                      <kbd className="ml-auto hidden font-sans text-xs text-white/75 group-data-[focus]:inline">
-                        ⌘E
-                      </kbd>
-                    </button>
-                  </MenuItem>
-                  <MenuItem>
-                    <button
-                      onClick={handleCopy}
-                      className="group flex w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:bg-white/10 cursor-default select-none"
-                    >
-                      <DocumentDuplicateIcon className="size-4 fill-white/75" />
-                      Copy script
-                      <kbd className="ml-auto hidden font-sans text-xs text-white/75 group-data-[focus]:inline">
-                        ⌘C
-                      </kbd>
-                    </button>
-                  </MenuItem>
-                  <div className="my-1 h-px bg-white/5" />
-                </>
-              )}
+              <MenuItem>
+                <button
+                  onClick={() => navigate(`/projects/${project.id}`)}
+                  className="group flex w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:bg-white/10 cursor-default select-none"
+                >
+                  <PencilIcon className="size-4 fill-white/75" />
+                  Edit
+                  <kbd className="ml-auto hidden font-sans text-xs text-white/75 group-data-[focus]:inline">
+                    ⌘E
+                  </kbd>
+                </button>
+              </MenuItem>
+              <MenuItem>
+                <button
+                  onClick={handleCopy}
+                  className="group flex w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:bg-white/10 cursor-default select-none"
+                >
+                  <DocumentDuplicateIcon className="size-4 fill-white/75" />
+                  Copy script
+                  <kbd className="ml-auto hidden font-sans text-xs text-white/75 group-data-[focus]:inline">
+                    ⌘C
+                  </kbd>
+                </button>
+              </MenuItem>
+              <div className="my-1 h-px bg-white/5" />
               <MenuItem>
                 <button
                   onClick={() => onRemove(project.id)}

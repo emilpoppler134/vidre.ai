@@ -1,18 +1,23 @@
 import { useState } from "react";
 
 const useWarnings = () => {
-  const [warnings, setWarnings] = useState<Array<string>>([]);
+  const [warnings, _setWarnings] = useState<Array<string>>([]);
 
-  const pushWarning = (item: string) => {
-    setWarnings((prev) => [...prev, item]);
+  const setWarnings = (message: string) => {
+    _setWarnings([message]);
+  };
+
+  const pushWarning = (message: string) => {
+    _setWarnings((prev) => [...prev, message]);
   };
 
   const clearWarnings = () => {
-    setWarnings([]);
+    _setWarnings([]);
   };
 
   return {
     warnings,
+    setWarnings,
     pushWarning,
     clearWarnings,
   };

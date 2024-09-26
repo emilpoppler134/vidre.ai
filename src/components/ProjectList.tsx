@@ -6,15 +6,10 @@ import ProjectItem from "./ProjectItem";
 
 type ProjectListProps = {
   projects: Array<Project>;
-  disabled?: boolean;
   onRemove: (id: string) => void;
 };
 
-const ProjectList: React.FC<ProjectListProps> = ({
-  projects,
-  disabled = false,
-  onRemove,
-}) => {
+const ProjectList: React.FC<ProjectListProps> = ({ projects, onRemove }) => {
   const navigate = useNavigate();
 
   return (
@@ -25,7 +20,6 @@ const ProjectList: React.FC<ProjectListProps> = ({
             <ProjectItem
               key={project.id}
               project={project}
-              disabled={disabled}
               onRemove={onRemove}
             />
           ))}

@@ -103,7 +103,7 @@ const Login: React.FC<LoginProps> = ({ open, onClose }) => {
                   <img src="/shadow-logo.png" alt="logo" />
                 </div>
                 <h2 className="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-                  Continue to our application
+                  Enter your email to continue
                 </h2>
                 <p className="text-sm text-gray-600 text-center px-2 lg:px-14 mt-2">
                   If you already have an account, the password panel will appear

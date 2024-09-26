@@ -12,16 +12,10 @@ import ProjectList from "../components/ProjectList";
 import {
   useListProjectsQuery,
   useRemoveProjectMutation,
-  UserType,
 } from "../types/graphql";
 
 gql`
   query ListProjects {
-    me {
-      id
-      type
-    }
-
     projects {
       id
       name
@@ -108,11 +102,7 @@ export default function Projects() {
       {loading ? (
         <ActivityIndicator />
       ) : (
-        <ProjectList
-          projects={data?.projects ?? []}
-          disabled={data?.me.type === UserType.Guest}
-          onRemove={handleRemove}
-        />
+        <ProjectList projects={data?.projects ?? []} onRemove={handleRemove} />
       )}
     </Layout>
   );

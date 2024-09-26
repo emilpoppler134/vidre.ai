@@ -8,15 +8,12 @@ import client from "../clients/graphql";
 import GradientBackground from "../components/GradientBackground";
 import Layout from "../components/Layout";
 import ConfigurationStep from "../components/sections/ConfigurationStep";
-import ResultStep from "../components/sections/ResultStep";
 import TopicStep from "../components/sections/TopicStep";
 import {
   ConfigurationAlternatives,
   CreateProjectMutationVariables,
-  Project,
   useCreateProjectMutation,
   useGetConfigurationsQuery,
-  UserType,
 } from "../types/graphql";
 
 gql`
@@ -67,8 +64,6 @@ type StepProps = {
   configurations: ConfigurationAlternatives | undefined;
   form: UseFormReturn<FormFields>;
   loading: boolean;
-  result: Project | null | undefined;
-  isGuest: boolean;
   step: number;
   changeStep: (value: number | ((prev: number) => number)) => void;
 };
@@ -77,8 +72,6 @@ const Steps: React.FC<StepProps> = ({
   configurations,
   form,
   loading,
-  result,
-  isGuest,
   step,
   changeStep,
 }) => {
@@ -98,10 +91,6 @@ const Steps: React.FC<StepProps> = ({
       );
     }
 
-    case 3: {
-      return <ResultStep project={result} isGuest={isGuest} />;
-    }
-
     default: {
       return <span>Something went wrong</span>;
     }
@@ -115,7 +104,6 @@ export default function ProjectCreate() {
   const [create, { loading }] = useCreateProjectMutation();
 
   const [step, setStep] = useState<number>(1);
-  const [result, setResult] = useState<Project | null | undefined>(null);
 
   const form = useForm<FormFields>({
     mode: "onChange",
@@ -143,9 +131,7 @@ export default function ProjectCreate() {
     try {
       const { data } = await create({ variables });
       await client.refetchQueries({ include: ["ListProjects"] });
-
-      setResult(data?.createProject);
-      setStep((prev) => prev + 1);
+      navigate(`/projects/${data?.createProject.id}`);
     } catch {}
   };
 
@@ -168,8 +154,6 @@ export default function ProjectCreate() {
               configurations={data?.configurations}
               form={form}
               loading={loading}
-              result={result}
-              isGuest={data?.me.type === UserType.Guest}
             />
           </div>
         </div>

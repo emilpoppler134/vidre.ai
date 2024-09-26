@@ -29,7 +29,9 @@ import DangerModal from "../components/dialogs/DangerModal";
 import VoiceModal from "../components/dialogs/VoiceModal";
 import Layout from "../components/Layout";
 import TextArea from "../components/TextArea";
+import Warning from "../components/Warning";
 import usePlayer from "../hooks/usePlayer";
+import useWarnings from "../hooks/useWarnings";
 import {
   GenerateSpeechMutationVariables,
   GetProjectQuery,
@@ -38,6 +40,7 @@ import {
   useGenerateSpeechMutation,
   useGetProjectQuery,
   useRemoveProjectMutation,
+  UserType,
   useUpdateProjectMutation,
 } from "../types/graphql";
 import {
@@ -81,6 +84,11 @@ gql`
   }
 
   query GetProject($projectId: String) {
+    me {
+      id
+      type
+    }
+
     voices {
       id
       name
@@ -130,14 +138,16 @@ type GenerateFormFields = yup.InferType<typeof generateSchema>;
 export default function Project() {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const { playerRef, playerInfo, playerConfig } = usePlayer();
+  const { warnings, setWarnings, clearWarnings } = useWarnings();
 
   const [editScript, setEditScript] = useState<boolean>(false);
   const [voiceSelectOpen, setVoiceSelectOpen] = useState<boolean>(false);
   const [generateSpeechOpen, setGenerateSpeechOpen] = useState<boolean>(false);
   const [removeOpen, setRemoveOpen] = useState<boolean>(false);
 
-  const { data, error, loading } = useGetProjectQuery({
+  const { data, loading } = useGetProjectQuery({
     variables: { projectId: id },
   });
 
@@ -180,6 +190,8 @@ export default function Project() {
       voiceId: data.voices[0].id,
     });
   };
+
+  useEffect(() => resetForms(data), [data]);
 
   const handleScriptUpdate = async (params: ScriptFormFields) => {
     try {
@@ -226,24 +238,24 @@ export default function Project() {
     } catch {}
   };
 
-  const breadcrumb = [
-    { name: "Projects", href: "/projects" },
-    { name: data?.project.name, href: `/projects/${data?.project.id}` },
-  ];
+  const handleOpenGenerateSpeechDialog = () => {
+    if (data?.me.type === undefined) return;
+    if (data.me.type === UserType.Guest) {
+      setWarnings("You need to complete your account to generate speeches.");
+      return;
+    }
 
-  useEffect(() => resetForms(data), [data]);
+    setGenerateSpeechOpen(true);
+  };
 
   const selectedVoice = data?.voices.find(
     (item) => item.id === generateForm.getValues("voiceId"),
   );
 
-  if (error) {
-    return (
-      <Layout>
-        <span>{error.message}</span>
-      </Layout>
-    );
-  }
+  const breadcrumb = [
+    { name: "Projects", href: "/projects" },
+    { name: data?.project.name, href: `/projects/${data?.project.id}` },
+  ];
 
   if (loading) {
     return (
@@ -352,7 +364,7 @@ export default function Project() {
                       <PencilSquareIcon />
                       Edit
                     </OutlineButton>
-                    <GradientButton onPress={() => setGenerateSpeechOpen(true)}>
+                    <GradientButton onPress={handleOpenGenerateSpeechDialog}>
                       <SparklesIcon />
                       Generate speech
                     </GradientButton>
@@ -494,6 +506,8 @@ export default function Project() {
         description="Are you sure you want to generate a speech?"
         buttonTitle="Generate"
       />
+
+      <Warning errors={warnings} onClose={clearWarnings} />
     </Layout>
   );
 }
