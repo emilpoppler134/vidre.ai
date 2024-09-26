@@ -58,7 +58,7 @@ const Login: React.FC<LoginProps> = ({ open, onClose }) => {
       const token = unwrap(data?.login?.token);
       setAccessToken(token);
 
-      window.location.href = "/projects";
+      window.location.href = "/new-project";
     } catch (err) {
       const error = resolveError(err);
 

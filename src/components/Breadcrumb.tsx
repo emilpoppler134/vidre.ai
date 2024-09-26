@@ -17,7 +17,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ items }) => {
         <li>
           <div>
             <Link
-              href="/projects"
+              href="/new-project"
               className="text-gray-400 hover:text-gray-500 select-none"
             >
               <HomeIcon aria-hidden="true" className="h-5 w-5 flex-shrink-0" />
