@@ -384,8 +384,8 @@ const Layout: React.FC<LayoutProps> = ({ children, transparent = false }) => {
         </button>
       </div>
 
-      <main className="relative flex-1 overflow-x-hidden overflow-y-auto lg:pl-72 [&>div]:relative">
-        {children}
+      <main className="flex-1 overflow-x-hidden overflow-y-auto lg:pl-72">
+        <div className="w-full h-full relative">{children}</div>
       </main>
 
       <CompleteAccount
