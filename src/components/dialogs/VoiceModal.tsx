@@ -69,31 +69,33 @@ const VoiceSelect = <T extends FieldValues>({
                       : voices.map((voice, index) => (
                           <div
                             key={voice.name}
-                            className={"flex rounded-lg hover:bg-gray-100"}
+                            className="flex h-20 sm:h-auto rounded-lg hover:bg-gray-100"
                           >
                             <button
-                              className="flex flex-1 px-3 py-4 gap-2 items-center cursor-pointer"
+                              className="flex-1 flex items-center gap-2 pl-3 sm:pl-4 sm:py-4"
                               onClick={() => {
                                 onChange(voice.id);
                                 playerConfig.pause();
                                 onClose();
                               }}
                             >
-                              <div className="flex flex-1 items-center gap-4">
-                                <div
-                                  className="rounded-full w-7 h-7"
+                              <div className="flex flex-1 items-center gap-4 text-left">
+                                <span
+                                  className="flex flex-shrink-0 w-7 h-7 rounded-full"
                                   style={
                                     voice.gradient
                                       ? { backgroundImage: voice.gradient }
                                       : { backgroundColor: "lightgray" }
                                   }
-                                ></div>
-                                <p className="text-base font-semibold text-gray-700">
-                                  {voice.name}
-                                </p>
-                                <p className="leading-6 text-[.7rem] text-gray-500">
-                                  {voice.description}
-                                </p>
+                                ></span>
+                                <div className="flex items-center">
+                                  <p className="min-w-16 text-sm sm:text-base font-semibold text-gray-700">
+                                    {voice.name}
+                                  </p>
+                                  <p className="text-xs sm:text-[.7rem] leading-5 sm:leading-6 text-gray-500">
+                                    {voice.description}
+                                  </p>
+                                </div>
                               </div>
                             </button>
                             <button
