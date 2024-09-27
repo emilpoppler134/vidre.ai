@@ -82,6 +82,11 @@ const styles = {
       "font-semibold text-white",
       "shadow-sm",
     ],
+    glossy: [
+      "bg-white/25 hover:bg-white/35",
+      "text-white font-semibold",
+      "shadow-none",
+    ],
   },
 };
 
@@ -139,6 +144,7 @@ export const SubmitButton = createButtonComponent("submit");
 export const PrimaryButton = createButtonComponent("primary");
 export const DangerButton = createButtonComponent("danger");
 export const GradientButton = createButtonComponent("gradient");
+export const GlossyButton = createButtonComponent("glossy");
 
 export const GoogleButton = () => (
   <a

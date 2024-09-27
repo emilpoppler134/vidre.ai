@@ -17,7 +17,7 @@ type TextFieldProps<TFieldValues extends FieldValues> = {
   type?: "text" | "password";
 };
 
-const TextField = <T extends FieldValues>({
+export const TextField = <T extends FieldValues>({
   autoComplete = "off",
   autofocus,
   className,
@@ -123,4 +123,65 @@ const TextField = <T extends FieldValues>({
   );
 };
 
-export default TextField;
+export const InputField = <T extends FieldValues>({
+  autoComplete,
+  autofocus,
+  className,
+  form,
+  name,
+  placeholder = "",
+  title,
+  type = "text",
+}: TextFieldProps<T>): JSX.Element => {
+  return (
+    <Controller
+      name={name}
+      control={form.control}
+      render={({
+        field: { onChange, onBlur, ref, value },
+        fieldState: { error },
+      }) => (
+        <div className="flex flex-col">
+          <span className="text-sm font-semibold leading-6 text-white/90">
+            {title}
+          </span>
+
+          <input
+            type={type}
+            name={name}
+            id={name}
+            ref={ref}
+            value={value}
+            placeholder={placeholder}
+            onChange={(e) => onChange(e.target.value)}
+            onBlur={() => onBlur()}
+            autoCapitalize="off"
+            autoComplete={
+              (autoComplete ?? type === "password") ? "new-password" : "off"
+            }
+            autoCorrect="false"
+            autoFocus={autofocus ?? false}
+            spellCheck="false"
+            className={clsx(
+              className,
+              "mt-1 w-full py-2 px-3 rounded-md text-base placeholder:text-gray-400",
+              "appearance-none outline-none !border-none !ring-0",
+            )}
+          />
+
+          {error && (
+            <div className="flex items-center mt-2">
+              <ExclamationTriangleIcon
+                className="w-4 h-4 fill-red-400"
+                aria-hidden="true"
+              />
+              <span className="block ml-1.5 text-xs text-red-500">
+                {error.message}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+    />
+  );
+};

@@ -6,7 +6,7 @@ import { useIsLandscape } from "../../hooks/useIsLandscape";
 import { FormFields } from "../../views/ProjectCreate";
 import AnimatedTitle from "../animations/AnimatedTitle";
 import { BorderAnimationButton } from "../Buttons";
-import TextField from "../TextField";
+import { TextField } from "../TextFields";
 
 type TopicStepProps = {
   form: UseFormReturn<FormFields>;

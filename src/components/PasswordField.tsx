@@ -1,5 +1,5 @@
 import { FieldValues, Path, UseFormReturn } from "react-hook-form";
-import TextField from "./TextField";
+import { TextField } from "./TextFields";
 
 type PasswordFieldProps<TFieldValues extends FieldValues> = {
   name: Path<TFieldValues>;

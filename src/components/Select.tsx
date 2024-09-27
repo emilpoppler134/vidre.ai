@@ -5,7 +5,7 @@ import {
   ExclamationTriangleIcon,
 } from "@heroicons/react/20/solid";
 import clsx from "clsx";
-import { Fragment } from "react";
+import { Fragment, ReactNode } from "react";
 import { Controller, FieldValues, Path, UseFormReturn } from "react-hook-form";
 
 type SelectProps<TFieldValues extends FieldValues> = {
@@ -14,7 +14,7 @@ type SelectProps<TFieldValues extends FieldValues> = {
   options: Array<string>;
 };
 
-const Select = <T extends FieldValues>({
+export const Select = <T extends FieldValues>({
   name,
   form,
   options,
@@ -114,4 +114,54 @@ const Select = <T extends FieldValues>({
   );
 };
 
-export default Select;
+export type GridSelectOptionItem = {
+  icon?: string | ReactNode;
+  value: string;
+};
+
+type GridSelectProps<TFieldValues extends FieldValues> = {
+  name: Path<TFieldValues>;
+  form: UseFormReturn<TFieldValues>;
+  options: Array<GridSelectOptionItem>;
+};
+
+export const GridSelect = <T extends FieldValues>({
+  name,
+  form,
+  options,
+}: GridSelectProps<T>): JSX.Element => {
+  return (
+    <Controller
+      name={name}
+      control={form.control}
+      render={({ field: { onChange, value } }) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {options.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => onChange(option.value)}
+              className={clsx(
+                {
+                  "ring-2 ring-primary-300 bg-primary-300/50":
+                    option.value === value,
+                },
+                {
+                  "bg-white/20 hover:bg-white/30": option.value !== value,
+                },
+                "p-4 rounded-md transition-colors",
+              )}
+            >
+              <div className="flex items-center justify-start gap-4 pointer-events-none text-white">
+                {option.icon === undefined ? null : (
+                  <span className="[&>svg]:w-5">{option.icon}</span>
+                )}
+                <span className="font-semibold">{option.value}</span>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+    />
+  );
+};

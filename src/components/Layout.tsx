@@ -25,7 +25,6 @@ import CompleteAccount from "./dialogs/CompleteAccount";
 import {
   Dropdown,
   DropdownButton,
-  DropdownDivider,
   DropdownItem,
   DropdownLabel,
   DropdownMenu,
@@ -144,9 +143,86 @@ const Layout: React.FC<LayoutProps> = ({ children, transparent = false }) => {
                           </NavLink>
                         </li>
                       ))}
+                      {data?.me?.type !== UserType.Guest ? null : (
+                        <li>
+                          <button
+                            onClick={() => setCompleteAccountOpen(true)}
+                            className="relative group w-full flex items-center gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 select-none text-gray-400 hover:bg-white/5 hover:text-white"
+                          >
+                            <UserIcon
+                              aria-hidden="true"
+                              className="h-6 w-6 shrink-0"
+                            />
+                            <span className="flex-1 text-left">
+                              Complete Account
+                            </span>
+                            <div className="relative w-5 h-5 rounded-full bg-red-500 text-xs text-white">
+                              <span className="absolute top-2/4 left-2/4 -translate-x-2/4 -translate-y-2/4">
+                                1
+                              </span>
+                            </div>
+                          </button>
+                        </li>
+                      )}
                     </ul>
                   </li>
-                  <li className="-mx-6 mt-auto text-gray-200 hover:bg-white/5">
+
+                  {data?.me.type !== UserType.Default ? null : (
+                    <li className="-mx-2 mt-auto bg-white/5 rounded-lg flex flex-col p-3 text-gray-400 select-none">
+                      <h2 className="text-gray-200 font-bold pb-1 border-b border-gray-600">
+                        Voiceover Tokens
+                      </h2>
+                      <div className="flex mt-1">
+                        <div className="flex-1">
+                          <p className="flex justify-between text-sm">
+                            <span className="font-semibold text-gray-300">
+                              Total:{" "}
+                            </span>
+                            <span>1500</span>
+                          </p>
+                          <p className="flex justify-between text-sm">
+                            <span className="font-semibold text-gray-300">
+                              Remaining:{" "}
+                            </span>
+                            <span>{data.me.tokens}</span>
+                          </p>
+                          {true && (
+                            <p className="flex justify-between text-sm">
+                              <span className="font-semibold text-gray-300">
+                                Refreshes:{" "}
+                              </span>
+                              <span>{formatUnixDate(0)}</span>
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center pl-4 pr-2">
+                          <CircularProgress
+                            size={50}
+                            pathLength={
+                              Math.abs((data?.me.tokens ?? 0) / 1500) * -1
+                            }
+                            backgroundColor="#374151"
+                          >
+                            <div className="text-[.6rem] font-bold text-gray-200">
+                              {Math.round(
+                                Math.abs((data?.me.tokens ?? 0) / 1500) * 100,
+                              )}
+                              %
+                            </div>
+                          </CircularProgress>
+                        </div>
+                      </div>
+                    </li>
+                  )}
+
+                  <li
+                    style={
+                      data?.me.type !== UserType.Default
+                        ? { marginTop: "auto" }
+                        : { marginTop: 0 }
+                    }
+                    className="-mx-6 mt-auto text-gray-200 hover:bg-white/5"
+                  >
                     <Dropdown>
                       <DropdownButton
                         as="div"
@@ -171,21 +247,6 @@ const Layout: React.FC<LayoutProps> = ({ children, transparent = false }) => {
                         className="min-w-64 z-50"
                         anchor="bottom end"
                       >
-                        {data?.me?.type === UserType.Guest && (
-                          <>
-                            <DropdownItem
-                              onClick={() => setCompleteAccountOpen(true)}
-                            >
-                              <UserIcon />
-                              <DropdownLabel className="select-none">
-                                Complete Account
-                              </DropdownLabel>
-                            </DropdownItem>
-
-                            <DropdownDivider />
-                          </>
-                        )}
-
                         <DropdownItem href="/settings">
                           <Cog6ToothIcon />
                           <DropdownLabel className="select-none">
@@ -243,6 +304,27 @@ const Layout: React.FC<LayoutProps> = ({ children, transparent = false }) => {
                       </NavLink>
                     </li>
                   ))}
+                  {data?.me?.type !== UserType.Guest ? null : (
+                    <li>
+                      <button
+                        onClick={() => setCompleteAccountOpen(true)}
+                        className="relative group w-full flex items-center gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 select-none text-gray-400 hover:bg-white/5 hover:text-white"
+                      >
+                        <UserIcon
+                          aria-hidden="true"
+                          className="h-6 w-6 shrink-0"
+                        />
+                        <span className="flex-1 text-left">
+                          Complete Account
+                        </span>
+                        <div className="relative w-5 h-5 rounded-full bg-red-500 text-xs text-white">
+                          <span className="absolute top-2/4 left-2/4 -translate-x-2/4 -translate-y-2/4">
+                            1
+                          </span>
+                        </div>
+                      </button>
+                    </li>
+                  )}
                 </ul>
               </li>
 
@@ -323,21 +405,6 @@ const Layout: React.FC<LayoutProps> = ({ children, transparent = false }) => {
                     </div>
                   </DropdownButton>
                   <DropdownMenu className="min-w-64 z-50" anchor="bottom end">
-                    {data?.me?.type !== UserType.Guest ? null : (
-                      <>
-                        <DropdownItem
-                          onClick={() => setCompleteAccountOpen(true)}
-                        >
-                          <UserIcon />
-                          <DropdownLabel className="select-none">
-                            Complete Account
-                          </DropdownLabel>
-                        </DropdownItem>
-
-                        <DropdownDivider />
-                      </>
-                    )}
-
                     <DropdownItem href="/settings">
                       <Cog6ToothIcon />
                       <DropdownLabel className="select-none">

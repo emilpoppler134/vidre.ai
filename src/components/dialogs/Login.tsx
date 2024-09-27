@@ -12,7 +12,7 @@ import resolveError from "../../utils/resolve-error";
 import { clearAccessToken, setAccessToken } from "../../utils/token-storage";
 import { GoogleButton, PrimaryButton } from "../Buttons";
 import PasswordField from "../PasswordField";
-import TextField from "../TextField";
+import { TextField } from "../TextFields";
 
 type LoginProps = {
   open: boolean;

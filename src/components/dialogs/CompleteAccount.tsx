@@ -1,7 +1,13 @@
 import { gql } from "@apollo/client";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
+import {
+  BuildingOffice2Icon,
+  MagnifyingGlassIcon,
+  XMarkIcon,
+} from "@heroicons/react/20/solid";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { useForm, UseFormReturn } from "react-hook-form";
 import unwrap from "ts-unwrap";
 import * as yup from "yup";
 import client from "../../clients/graphql";
@@ -12,16 +18,10 @@ import {
 } from "../../types/graphql";
 import { passwordRegex } from "../../utils/constants";
 import { setAccessToken } from "../../utils/token-storage";
-import { ButtonGroup, OutlineButton, SubmitButton } from "../Buttons";
-import PasswordField from "../PasswordField";
-import Radio from "../Radio";
-import Select from "../Select";
-import TextField from "../TextField";
-
-type CompleteAccountProps = {
-  open: boolean;
-  onClose: () => void;
-};
+import { GlossyButton, SubmitButton } from "../Buttons";
+import { FriendsIcon, InstagramIcon, TiktokIcon, YoutubeIcon } from "../Icons";
+import { GridSelect } from "../Select";
+import { InputField } from "../TextFields";
 
 gql`
   mutation Complete($params: CompleteParams!) {
@@ -35,36 +35,46 @@ gql`
   }
 `;
 
-const purposeOptions: string[] = [
-  "Just for fun!",
-  "Not sure yet",
-  "Eventually for work",
+export const purposeOptions = [
+  { value: "Personal user", icon: "😊" },
+  { value: "Student", icon: "👨‍🎓" },
+  { value: "Content Creator", icon: "🎬" },
+  { value: "Marketer or Advertiser", icon: "📈" },
+  { value: "Corporate Trainer ", icon: "🧑‍💼" },
+  { value: "Other..." },
 ];
-const workOptions: string[] = [
-  "Content Creator",
-  "Marketing and Advertising",
-  "Education",
-  "E-commerce",
-  "Corporate Training and Development",
-  "Other",
+export const familiarityOptions = [
+  { value: "Search engine", icon: <MagnifyingGlassIcon /> },
+  { value: "TikTok", icon: <TiktokIcon /> },
+  { value: "Youtube", icon: <YoutubeIcon /> },
+  { value: "Instagram", icon: <InstagramIcon /> },
+  { value: "From a friend", icon: <FriendsIcon /> },
+  { value: "From work", icon: <BuildingOffice2Icon /> },
 ];
-const launchOptions: string[] = [
-  "Yes, Im on the waitlist!",
-  "I've heard about it.",
-  "No, but now I do!",
-];
-const wishlistOptions: Array<{ bool: boolean; label: string }> = [
-  { bool: true, label: "Yes" },
-  { bool: false, label: "No" },
+export const ageOptions = [
+  { value: "0 - 17" },
+  { value: "18 - 24" },
+  { value: "24 - 34" },
+  { value: "35 - 44" },
+  { value: "45 - 54" },
+  { value: "55 - 64" },
+  { value: "65+" },
 ];
 
 const schema = yup.object().shape({
-  name: yup.string().required("This field is required."),
-  age: yup.string().required("This field is required."),
-  purpose: yup.string().required("This field is required."),
-  work: yup.string().nullable(),
-  familiarity: yup.string().required("This field is required."),
-  wishlist: yup.boolean().required("This field is required."),
+  purpose: yup
+    .string()
+    .oneOf(purposeOptions.map((item) => item.value))
+    .required(),
+  familiarity: yup
+    .string()
+    .oneOf(familiarityOptions.map((item) => item.value))
+    .required(),
+  age: yup
+    .string()
+    .oneOf(ageOptions.map((item) => item.value))
+    .required(),
+  name: yup.string().trim().required("Name cannot be empty."),
   password: yup
     .string()
     .trim()
@@ -72,7 +82,7 @@ const schema = yup.object().shape({
       passwordRegex,
       "Your password must start with a letter, contain one number and be 6 characters or longer.",
     )
-    .required("This field is required."),
+    .required("Password cannot be empty."),
   rePassword: yup
     .string()
     .trim()
@@ -80,12 +90,226 @@ const schema = yup.object().shape({
       [yup.ref("password")],
       "Your passwords don't match. Please try again.",
     )
-    .required("This field is required."),
+    .required("Reentered password cannot be empty."),
 });
 
 type FormFields = yup.InferType<typeof schema>;
 
+type StepsProps = {
+  step: number;
+  form: UseFormReturn<FormFields>;
+  loading: boolean;
+  handleCancel: () => void;
+  handleNext: () => void;
+};
+
+const Steps: React.FC<StepsProps> = ({
+  step,
+  form,
+  loading,
+  handleCancel,
+  handleNext,
+}) => {
+  switch (step) {
+    case 1: {
+      return (
+        <>
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-white">
+              Which of the following roles best describes you?
+            </h1>
+            <span className="block mt-2 text-sm text-white/75">
+              <span>
+                Your feedback will help us personalize your experience.
+              </span>
+              <span className="ml-2 font-semibold text-white">
+                Select 1 only.
+              </span>
+            </span>
+          </div>
+
+          <div className="flex-1">
+            <GridSelect
+              key="purpose"
+              form={form}
+              name="purpose"
+              options={purposeOptions}
+            />
+          </div>
+
+          <div className="flex justify-end">
+            <div className="flex items-center gap-4">
+              <GlossyButton onPress={handleCancel} className="px-6">
+                Skip
+              </GlossyButton>
+              <SubmitButton
+                onPress={handleNext}
+                className="px-6"
+                disabled={form.watch("purpose") === undefined}
+              >
+                Next
+              </SubmitButton>
+            </div>
+          </div>
+        </>
+      );
+    }
+
+    case 2: {
+      return (
+        <>
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-white">
+              How did you hear about Vidre.ai?
+            </h1>
+            <span className="block mt-2 text-sm text-white/75">
+              <span>
+                Your feedback will help us personalize your experience.
+              </span>
+              <span className="ml-2 font-semibold text-white">
+                Select 1 only.
+              </span>
+            </span>
+          </div>
+
+          <div className="flex-1">
+            <GridSelect
+              key="familiarity"
+              form={form}
+              name="familiarity"
+              options={familiarityOptions}
+            />
+          </div>
+
+          <div className="flex justify-end">
+            <div className="flex items-center gap-4">
+              <GlossyButton onPress={handleCancel} className="px-6">
+                Back
+              </GlossyButton>
+              <SubmitButton
+                onPress={handleNext}
+                className="px-6"
+                disabled={form.watch("familiarity") === undefined}
+              >
+                Next
+              </SubmitButton>
+            </div>
+          </div>
+        </>
+      );
+    }
+
+    case 3: {
+      return (
+        <>
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-white">What is your age?</h1>
+            <span className="block mt-2 text-sm text-white/75">
+              <span>
+                Your feedback will help us personalize your experience.
+              </span>
+              <span className="ml-2 font-semibold text-white">
+                Select 1 only.
+              </span>
+            </span>
+          </div>
+
+          <div className="flex-1">
+            <GridSelect key="age" form={form} name="age" options={ageOptions} />
+          </div>
+
+          <div className="flex justify-end">
+            <div className="flex items-center gap-4">
+              <GlossyButton onPress={handleCancel} className="px-6">
+                Back
+              </GlossyButton>
+              <SubmitButton
+                onPress={handleNext}
+                className="px-6"
+                disabled={form.watch("age") === undefined}
+              >
+                Next
+              </SubmitButton>
+            </div>
+          </div>
+        </>
+      );
+    }
+
+    case 4: {
+      return (
+        <>
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-white">
+              Create your account
+            </h1>
+            <span className="block mt-2 text-sm text-white/75">
+              <span>Fill the fields to complete your account</span>
+            </span>
+          </div>
+
+          <div className="flex-1 flex flex-col gap-6 w-full max-w-lg mx-auto">
+            <InputField
+              key="name"
+              form={form}
+              name="name"
+              title="Full name"
+              placeholder="John Doe"
+            />
+
+            <InputField
+              key="password"
+              type="password"
+              form={form}
+              name="password"
+              title="Password"
+              placeholder="********"
+            />
+
+            <InputField
+              key="rePassword"
+              type="password"
+              form={form}
+              name="rePassword"
+              title="Reenter password"
+              placeholder="********"
+            />
+          </div>
+
+          <div className="flex justify-end">
+            <div className="flex items-center gap-4">
+              <GlossyButton onPress={handleCancel} className="px-6">
+                Back
+              </GlossyButton>
+              <SubmitButton
+                key="submit"
+                type="submit"
+                loading={loading}
+                disabled={!form.formState.isValid}
+                className="px-6"
+              >
+                Finish
+              </SubmitButton>
+            </div>
+          </div>
+        </>
+      );
+    }
+
+    default: {
+      return <span>Something went wrong</span>;
+    }
+  }
+};
+
+type CompleteAccountProps = {
+  open: boolean;
+  onClose: () => void;
+};
+
 const CompleteAccount: React.FC<CompleteAccountProps> = ({ open, onClose }) => {
+  const [step, setStep] = useState<number>(1);
+
   const [complete, { loading }] = useCompleteMutation();
   const [refreshToken] = useRefreshTokenMutation();
 
@@ -94,7 +318,23 @@ const CompleteAccount: React.FC<CompleteAccountProps> = ({ open, onClose }) => {
     reValidateMode: "onChange",
     criteriaMode: "all",
     resolver: yupResolver(schema),
+    defaultValues: {
+      purpose: undefined,
+      familiarity: undefined,
+      age: undefined,
+      name: "",
+      password: "",
+      rePassword: "",
+    },
   });
+
+  const resetForms = () => {
+    if (open) return;
+    setStep(1);
+    form.reset();
+  };
+
+  useEffect(() => resetForms(), [open]);
 
   const handleComplete = async ({ rePassword, ...params }: FormFields) => {
     const variables: CompleteMutationVariables = { params };
@@ -111,9 +351,17 @@ const CompleteAccount: React.FC<CompleteAccountProps> = ({ open, onClose }) => {
     } catch {}
   };
 
-  const handleClose = () => {
-    form.reset();
-    onClose();
+  const handleCancel = () => {
+    if (step <= 1) {
+      onClose();
+      return;
+    }
+    setStep((prev) => prev - 1);
+  };
+
+  const handleNext = () => {
+    if (step >= 4) return;
+    setStep((prev) => prev + 1);
   };
 
   return (
@@ -127,149 +375,35 @@ const CompleteAccount: React.FC<CompleteAccountProps> = ({ open, onClose }) => {
         <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
           <DialogPanel
             transition
-            className="relative transform w-full rounded-lg bg-white text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in sm:my-8 sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
+            className="relative transform w-full rounded-lg bg-gray-500/70 ring-2 ring-white/50 backdrop-blur-md text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in sm:my-8 sm:max-w-2xl md:max-w-3xl lg:max-w-4xl data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
           >
-            <div className="px-4 py-5 sm:p-6 border-b border-gray-200">
-              <h3 className="text-base font-semibold leading-6 text-gray-900">
-                Complete your account
-              </h3>
-              <div className="mt-2 max-w-xl text-sm text-gray-500">
-                <p>To get full access to our services.</p>
-              </div>
-            </div>
-            <div className="px-4 py-5 sm:p-6">
-              <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5"
-                >
-                  Full name
-                </label>
-                <div className="mt-2 sm:col-span-2 sm:mt-0">
-                  <TextField
-                    name="name"
-                    key="name"
-                    title="Full Name"
-                    form={form}
-                  />
-                </div>
+            <div className="relative flex flex-col">
+              <div className="flex justify-end pb-2">
+                <button type="button" onClick={onClose} className="p-4 group">
+                  <XMarkIcon className="w-6 h-6 text-white/80 group-hover:text-white/60 transition-colors" />
+                </button>
               </div>
 
-              <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-                <label
-                  htmlFor="age"
-                  className="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5"
-                >
-                  Age
-                </label>
-                <div className="mt-2 sm:col-span-2 sm:mt-0">
-                  <TextField name="age" key="age" title="Age" form={form} />
-                </div>
-              </div>
-
-              <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-                <p className="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">
-                  Purpose of using the script generator
-                </p>
-                <div className="mt-2 sm:col-span-2 sm:mt-0">
-                  <Select
-                    name="purpose"
-                    key="purpose"
-                    form={form}
-                    options={purposeOptions}
-                  />
-                </div>
-              </div>
-
-              {form.watch("purpose") !== "Eventually for work" ? null : (
-                <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-                  <p className="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">
-                    What's your field?
-                  </p>
-                  <div className="mt-2 sm:col-span-2 sm:mt-0">
-                    <Select
-                      key="work"
-                      name="work"
-                      form={form}
-                      options={workOptions}
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-                <p className="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">
-                  Are you aware that we're launching a text-to-video AI
-                  specifically for short-form content?
-                </p>
-                <div className="mt-2 sm:col-span-2 sm:mt-0">
-                  <Select
-                    key="familiarity"
-                    name="familiarity"
-                    form={form}
-                    options={launchOptions}
-                  />
-                </div>
-              </div>
-
-              <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-                <p className="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">
-                  Add my account to the waitlist!
-                </p>
-                <div className="mt-2 sm:col-span-2 sm:mt-0">
-                  <Radio
-                    key="wishlist"
-                    name="wishlist"
-                    form={form}
-                    options={wishlistOptions}
-                  />
-                </div>
-              </div>
-
-              <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5"
-                >
-                  Password
-                </label>
-                <div className="mt-2 sm:col-span-2 sm:mt-0">
-                  <PasswordField
-                    key="password"
-                    name="password"
-                    form={form}
-                    title="Password"
-                  />
-                </div>
-              </div>
-
-              <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5"
-                >
-                  Reenter Password
-                </label>
-                <div className="mt-2 sm:col-span-2 sm:mt-0">
-                  <PasswordField
-                    key="rePassword"
-                    name="rePassword"
-                    form={form}
-                    title="Reenter Password"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="px-4 py-5 sm:p-6 border-t border-gray-200">
-              <ButtonGroup className="mt-5">
-                <SubmitButton
-                  onPress={form.handleSubmit(handleComplete)}
+              <form
+                onSubmit={form.handleSubmit(handleComplete)}
+                className="flex-1 min-h-[460px] flex flex-col gap-8 px-6 pb-6"
+              >
+                <Steps
+                  step={step}
+                  form={form}
                   loading={loading}
-                >
-                  Submit
-                </SubmitButton>
-                <OutlineButton onPress={handleClose}>Cancel</OutlineButton>
-              </ButtonGroup>
+                  handleCancel={handleCancel}
+                  handleNext={handleNext}
+                />
+              </form>
+
+              <div className="absolute bottom-6 left-6">
+                <span className="flex items-center gap-2 text-md font-semibold text-white/50">
+                  <span className="text-white">{step}</span>
+                  <span>/</span>
+                  <span>4</span>
+                </span>
+              </div>
             </div>
           </DialogPanel>
         </div>
