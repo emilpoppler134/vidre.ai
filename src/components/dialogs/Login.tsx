@@ -32,6 +32,8 @@ const schema = yup.object().shape({
   password: yup.string().nullable(),
 });
 
+type FormFields = yup.InferType<typeof schema>;
+
 const Login: React.FC<LoginProps> = ({ open, onClose }) => {
   const navigate = useNavigate();
 
@@ -39,15 +41,15 @@ const Login: React.FC<LoginProps> = ({ open, onClose }) => {
 
   const [showPasswordField, setShowPasswordField] = useState<boolean>(false);
 
-  const form = useForm<LoginMutationVariables>({
+  const form = useForm<FormFields>({
     mode: "onBlur",
     reValidateMode: "onBlur",
     criteriaMode: "all",
     resolver: yupResolver(schema),
   });
 
-  const handleLogin = async (params: LoginMutationVariables) => {
-    const variables = {
+  const handleLogin = async (params: FormFields) => {
+    const variables: LoginMutationVariables = {
       username: params.username,
       password: showPasswordField ? params.password : undefined,
     };
@@ -120,6 +122,7 @@ const Login: React.FC<LoginProps> = ({ open, onClose }) => {
                         name="username"
                         key="username"
                         title="Email"
+                        autoComplete="email"
                         onKeyPress={(e) => {
                           form.resetField("password");
                           setShowPasswordField(false);
@@ -134,7 +137,9 @@ const Login: React.FC<LoginProps> = ({ open, onClose }) => {
                         autoComplete="password"
                         className={clsx(
                           { "mt-6": showPasswordField },
-                          { hidden: !showPasswordField },
+                          {
+                            hidden: !showPasswordField,
+                          },
                         )}
                       />
 

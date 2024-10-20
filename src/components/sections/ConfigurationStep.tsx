@@ -120,7 +120,7 @@ const ConfigurationStep: FC<ConfigurationStepProps> = ({
       <TStack
         show={!loading}
         ref={scope}
-        className="min-h-screen flex flex-col pt-10 pb-[10rem]"
+        className="h-full flex flex-col pt-10 pb-[10rem]"
       >
         <button
           className="flex items-center gap-1 pb-4 text-white/75"

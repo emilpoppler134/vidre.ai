@@ -149,7 +149,7 @@ export const GridSelect = <T extends FieldValues>({
                 {
                   "bg-white/20 hover:bg-white/30": option.value !== value,
                 },
-                "p-4 rounded-md transition-colors",
+                "px-4 py-3 sm:py-4 rounded-md transition-colors",
               )}
             >
               <div className="flex items-center justify-start gap-4 pointer-events-none text-white">

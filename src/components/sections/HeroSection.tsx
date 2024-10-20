@@ -48,7 +48,7 @@ const buttonVariants = {
 
 const HeroSection: React.FC<HeroSectionProps> = ({ setOpen }) => {
   return (
-    <div className="relative pt-14 min-h-screen">
+    <div className="relative min-h-screen">
       <div
         aria-hidden="true"
         className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"

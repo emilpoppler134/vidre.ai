@@ -58,8 +58,8 @@ const TopicStep: React.FC<TopicStepProps> = ({ form, changeStep }) => {
     <div
       ref={scope}
       className={clsx(
-        { "max-lg:-top-[13vh]": !isLandscape },
-        "relative w-full min-h-screen flex flex-col gap-8 max-lg:justify-center pt-24 lg:pt-16 pb-10 items-center",
+        { "max-lg:pt-0 max-lg:pb-40": !isLandscape },
+        "relative w-full h-full flex flex-col gap-8 max-lg:justify-center pt-24 lg:pt-16 pb-10 items-center",
       )}
     >
       <motion.h1
@@ -106,7 +106,6 @@ const TopicStep: React.FC<TopicStepProps> = ({ form, changeStep }) => {
             form={form}
             name="topic"
             placeholder="Choose your topic?"
-            autofocus
             className="!shadow-none font-semibold text-gray-700 !h-12 rounded-xl [&_input]:rounded-xl [&_input]:!px-4 [&_input]:text-lg"
           />
         </motion.div>

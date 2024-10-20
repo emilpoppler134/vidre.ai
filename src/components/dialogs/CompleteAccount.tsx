@@ -115,10 +115,10 @@ const Steps: React.FC<StepsProps> = ({
       return (
         <>
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-white">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">
               Which of the following roles best describes you?
             </h1>
-            <span className="block mt-2 text-sm text-white/75">
+            <span className="hidden sm:block mt-2 text-sm text-white/75">
               <span>
                 Your feedback will help us personalize your experience.
               </span>
@@ -159,10 +159,10 @@ const Steps: React.FC<StepsProps> = ({
       return (
         <>
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-white">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">
               How did you hear about Vidre.ai?
             </h1>
-            <span className="block mt-2 text-sm text-white/75">
+            <span className="hidden sm:block mt-2 text-sm text-white/75">
               <span>
                 Your feedback will help us personalize your experience.
               </span>
@@ -203,8 +203,10 @@ const Steps: React.FC<StepsProps> = ({
       return (
         <>
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-white">What is your age?</h1>
-            <span className="block mt-2 text-sm text-white/75">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">
+              What is your age?
+            </h1>
+            <span className="hidden sm:block mt-2 text-sm text-white/75">
               <span>
                 Your feedback will help us personalize your experience.
               </span>
@@ -240,10 +242,10 @@ const Steps: React.FC<StepsProps> = ({
       return (
         <>
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-white">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">
               Create your account
             </h1>
-            <span className="block mt-2 text-sm text-white/75">
+            <span className="hidden sm:block mt-2 text-sm text-white/75">
               <span>Fill the fields to complete your account</span>
             </span>
           </div>

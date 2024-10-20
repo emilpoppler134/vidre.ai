@@ -337,7 +337,7 @@ export default function Project() {
                       onPress={scriptForm.handleSubmit(handleScriptUpdate)}
                       loading={updateScriptLoading}
                     >
-                      Submit
+                      Save
                     </SubmitButton>
                     <OutlineButton
                       onPress={() => {
